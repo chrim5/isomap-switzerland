@@ -6,6 +6,28 @@ var map = new L.Map("map", {
   zoom: 9
 });
 
+
+//create a dropdown for selecting a swiss airport
+var legend = L.control({position: 'topright'});
+legend.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'info legend');
+  div.innerHTML = `
+  <select class='browser-default custom-select'>
+    <option selected>Flughafen auswählen</option>
+    <option value='47.451542, 8.564572'>Flughafen Zürich</option>
+    <option value='47.589583, 7.529914'>Flughafen Basel-Mulhouse</option>
+    <option value='46.236389, 6.107222'>Flughafen Genf</option>
+  </select>`;
+  div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+  return div;
+  };
+legend.addTo(map);
+
+$('select').change(function(){
+  console.log(this.value.split(','));
+  getIsochrones(this.value.split(','));
+});
+
 // Light OSM layer
 var osmLayer = L.tileLayer(
   "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
@@ -32,7 +54,7 @@ var fromPlace = [47.451542, 8.564572];
 //    maxWalkDistance=1500&
 //    cutoffSec=1800&
 //    cutoffSec=3600
-function getIsochrones() {
+function getIsochrones(from = fromPlace) {
   // The cutoffSec parameter in the URL is repeated which is a
   // non-standard behaviour. cutoffSec[]=1800&cutoffSec[]=3600
   // does not work. Build this part of the URL manually.
@@ -48,7 +70,7 @@ function getIsochrones() {
     type: "GET",
     dataType: "json",
     data: {
-      fromPlace: fromPlace.join(","),
+      fromPlace: from.join(","),
       mode: "TRANSIT,WALK",
       maxWalkDistance: 1500
     },
@@ -94,7 +116,7 @@ function drawIsochrone(data) {
     .addTo(map);
 
   // Add the from point location as a marker.
-  var origin = L.circleMarker(fromPlace, {
+  var origin = L.circleMarker(from, {
     color: "#000000",
     fillOpacity: 0.5,
     fillColor: "#ff0000"
@@ -108,5 +130,6 @@ function isochroneError(error) {
   alert("Error during isochrone calculation.");
   console.log("Isochrone error", error);
 }
+
 
 getIsochrones();
