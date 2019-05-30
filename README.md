@@ -41,5 +41,24 @@ Da wir keine Geodaten zu den Standorten der Flughäfen der Schweiz gefunden habe
 # Getting started
 
 
+Wir verwenden als Backendservice zum berechnen der Isochronen einen lokalen [Opentripplanner-Service][opentripplanner]. Dieser verwendet ein Graph-Objekt eines beliebigen Kartenauschnittes um Fahrzeiten zwischen verschiedenen Punkten auf der Karte zu berechnen. Die folgenden Punkte müssen
+
+Um den Graphen zu erstellen sind verschiedene Daten erforderlich:
+- Geodaten der Schweiz, hierzu wurde ein etwas über die Landesgrenzen hinausgehender Ausschnitt verwendet, welcher von [hier][switzerland_extended_pbf] heruntergeladen werden kann.
+- Fahrplandaten, die ebenfalls in den Graphen kompiliert werden. Diese liegen als .zip-File vor, welches [hier][switzerland_gtfs] abgeholte werden kann.
+
+Die erwähnten Daten müssen im Basedir des Projektes abgelegt werden, damit sie mit folgendem Befehl gefunden und in den Graphen hineinkompiliert werden können. Dieser Schritt ist sehr Zeit- und Speicherintensiv, muss aber nur einmal gemacht werden.
+```
+java -Xmx10G -jar otp-1.4.0-SNAPSHOT-shaded.jar --build ./graphs
+```
+
+Ins Subdirectory 'graphs' wechseln, danach folgenden Befehl ausführen um den Webservice mit kompiliertem Graph starten:
+```
+java -Xmx8G -jar ../otp-1.4.0-SNAPSHOT-shaded.jar --graphs . --router current --server
+```
+
 [qgis]: https://www.qgis.org/de/site/
 [ors_tools]: https://plugins.qgis.org/plugins/ORStools/
+[switzerland_extended_pbf]: https://drive.google.com/file/d/11sF108eoYH1Y90dz2mh05JzF1vsw5rkr/view?usp=sharing
+[switzerland_gtfs]:https://drive.google.com/file/d/1FaKUMMOI0vpWk9JVY4480sLfDZQXBHQa/view?usp=sharing
+[opentripplanner]:https://www.opentripplanner.org/
