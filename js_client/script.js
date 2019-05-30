@@ -16,6 +16,13 @@ var map = new L.Map("map", {
   zoom: 9
 });
 
+//create a layerGroup for adding and removing geojson-layers from isochrone service
+var isoLayerGroup = new L.LayerGroup();
+isoLayerGroup.addTo(map);
+
+//declare legend member
+this.legend;
+
 // Bind searched address to popup
 var searchPoints = L.geoJson(null, {
   onEachFeature: function(feature, layer) {
@@ -42,24 +49,39 @@ function showSearchPoints(geojson) {
 searchPoints.addTo(map);
 
 //create a dropdown for selecting a swiss airport
-var legend = L.control({position: 'topright'});
-legend.onAdd = function (map) {
-  var div = L.DomUtil.create('div', 'info legend');
+var menuControls = L.control({position: 'topright'});
+menuControls.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'menu legend');
   div.innerHTML = `
-  <select class='browser-default custom-select'>
+  <select class='leaflet-control'>
     <option selected>Flughafen auswählen</option>
     <option value='47.451542, 8.564572'>Flughafen Zürich</option>
-    <option value='47.589583, 7.529914'>Flughafen Basel-Mulhouse</option>
+    <option value='47.5994823, 7.5326228'>Flughafen Basel-Mulhouse</option>
     <option value='46.236389, 6.107222'>Flughafen Genf</option>
-  </select>`;
+  </select>
+  <button ion-button  id='clearBtn' class='leaflet-control button-action'  block>Clear all</button>
+  `;
+  
   div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
   return div;
   };
-legend.addTo(map);
+  menuControls.addTo(map);
+
+var colors = {
+  1800: "#756bb1",
+  3600: "#3366ff"
+};
 
 $('select').change(function(){
-  //console.log(this.value.split(','));
   getIsochrones(this.value.split(','));
+});
+
+$('#clearBtn').click(function(){
+  console.log("Clearing all Isochrone Layers, markers and legend...");
+  isoLayerGroup.clearLayers();
+  map.removeControl(legend);
+  legend = null;
+  $("select").val("Flughafen auswählen");
 });
 
 // Light OSM layer
@@ -125,10 +147,7 @@ function drawIsochrone(data) {
     return;
   }
 
-  var colors = {
-    1800: "#756bb1",
-    3600: "#3366ff"
-  };
+
 
   // Define isochrones from geoJSON time properties
   var isochrones = L.geoJSON(null, {
@@ -142,7 +161,7 @@ function drawIsochrone(data) {
     }
   });
   isochrones.addData(data);
-  isochrones.addTo(map);
+  isoLayerGroup.addLayer(isochrones);
 
   // Show travel time in minutes as tool tip
   isochrones
@@ -164,14 +183,36 @@ function drawIsochrone(data) {
     fillOpacity: 0.5,
     fillColor: "#ff0000"
   });
-  map.addLayer(origin);
+  isoLayerGroup.addLayer(origin);
 
   // Zoom to the isochrones extent.
   map.flyToBounds(isochrones.getBounds());
+
+  //create a legend for the chosen time intervals
+  addLegend();
 }
 
 // Error during isochrone calc
 function isochroneError(error) {
   alert("Error during isochrone calculation.");
   console.log("Isochrone error", error);
+}
+
+// Create a legend for the current intervals on the left bottom
+function addLegend(){
+  if( this.legend )return;
+  this.legend = L.control({position: 'bottomleft'});
+  this.legend.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'legend');
+  labels = ['<strong>Intervalle</strong>'];
+  for (var color in colors) {
+        div.innerHTML += 
+        labels.push(
+            '<div class="circle" style="background:' + colors[color] + '"></div><div class="legendEntry">' + color / 60 + ' min</div>'
+        );
+    }
+    div.innerHTML = labels.join('<br>');
+  return div;
+  };
+  this.legend.addTo(map);
 }

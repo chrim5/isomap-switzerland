@@ -228,3 +228,31 @@ ul li span.progress {
 header {
 padding: 20px;
 }
+
+.legend{
+  font-size: 1.2em;
+	min-width: 150px;
+	min-height: 50px;
+	background-color: rgba(238, 238, 238, 0.63);
+  height: auto;
+  padding: 0.5em;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 10px;
+  border: 2px solid rgba(173, 173, 173, 0.651) 
+}
+
+.legendEntry{
+  display: inline-block;
+  padding: 5px;
+}
+
+div.circle {
+  display: inline-block;
+  width: 20px;
+  height: 10px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  background: gray;
+}

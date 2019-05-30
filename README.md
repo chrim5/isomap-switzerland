@@ -46,15 +46,18 @@ Wir verwenden als Backendservice zum berechnen der Isochronen einen lokalen [Ope
 Um den Graphen zu erstellen sind verschiedene Daten erforderlich:
 - Geodaten der Schweiz, hierzu wurde ein etwas über die Landesgrenzen hinausgehender Ausschnitt verwendet, welcher von [hier][switzerland_extended_pbf] heruntergeladen werden kann.
 - Fahrplandaten, die ebenfalls in den Graphen kompiliert werden. Diese liegen als .zip-File vor, welches [hier][switzerland_gtfs] abgeholte werden kann.
-
-Die erwähnten Daten müssen im Basedir des Projektes abgelegt werden, damit sie mit folgendem Befehl gefunden und in den Graphen hineinkompiliert werden können. Dieser Schritt ist sehr Zeit- und Speicherintensiv, muss aber nur einmal gemacht werden.
 ```
-java -Xmx10G -jar otp-1.4.0-SNAPSHOT-shaded.jar --build ./graphs
+mkdir "./graphs/current"
 ```
 
-Ins Subdirectory 'graphs' wechseln, danach folgenden Befehl ausführen um den Webservice mit kompiliertem Graph starten:
+Die erwähnten Daten müssen im 'graphs/current' - Ordner des Projektes abgelegt werden, damit sie mit folgendem Befehl gefunden und in den Graphen hineinkompiliert werden können. Dieser Schritt ist sehr Zeit- und Speicherintensiv, muss aber nur einmal gemacht werden.
 ```
-java -Xmx8G -jar ../otp-1.4.0-SNAPSHOT-shaded.jar --graphs . --router current --server
+java -Xmx10G -jar otp-1.4.0-SNAPSHOT-shaded.jar --build ./graphs/current
+```
+
+Webservice mit kompiliertem Graph starten:
+```
+java -Xmx8G -jar otp-1.4.0-SNAPSHOT-shaded.jar --graphs ./graphs --router current --server
 ```
 
 [qgis]: https://www.qgis.org/de/site/
