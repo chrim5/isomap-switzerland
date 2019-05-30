@@ -1,37 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>OTP - Leaflet Isochrone Map</title>
-  <meta charset="utf-8">
+  <head>
+    <title>OTP - Leaflet Isochrone Map</title>
+    <meta charset="utf-8" />
 
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+    <!-- Leaflet CSS-->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.5.0/dist/leaflet.css"
+      crossorigin=""
+    />
+    <!-- Leaflet Photon Plugin CSS -->
+    <link rel="stylesheet" href="static/leaflet.photon/leaflet.photon.css" />
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.0/dist/leaflet.css" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.5.0/dist/leaflet.js" crossorigin=""></script>
+    <!-- Bootstrap CSS -->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" crossorigin="anonymous"> -->
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" crossorigin="anonymous">
-
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container-fluid">
-
-    <div class="top row">
-      <div class="col-sm">
-        <h1>OTP - Leaflet Isochrone Map</h1>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-sm">
-        <div id="map"></div>
-      </div>
-  </div>
-
-  <script src="script.js"></script>
-
-</body>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script
+      src="https://unpkg.com/leaflet@1.5.0/dist/leaflet.js"
+      crossorigin=""
+    ></script>
+    <script src="static/leaflet.photon/leaflet.photon.js"></script>
+    <!-- jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="script.js"></script>
+  </body>
 </html>
