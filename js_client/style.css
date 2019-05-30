@@ -230,7 +230,8 @@ padding: 20px;
 }
 
 .legend{
-  font-size: 1.2em;
+  font-family: inherit;
+  font-size: 14px;
 	min-width: 150px;
 	min-height: 50px;
 	background-color: rgba(238, 238, 238, 0.63);
@@ -241,6 +242,30 @@ padding: 20px;
   border-radius: 10px;
   border: 2px solid rgba(173, 173, 173, 0.651) 
 }
+
+select{
+  height: 56px;
+  margin: 0 0 14px;
+  padding: 7px;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+button{
+  font-size: 14px;
+  border-radius: 3px;
+  border: 2px solid rgba(173, 173, 173, 0.651);
+  background: rgb(255, 255, 255);
+  padding: 7px;
+}
+
+button:hover {
+  background-color: rgba(173, 173, 173, 0.651); /* Green */
+  color: white;
+}
+
 
 .legendEntry{
   display: inline-block;

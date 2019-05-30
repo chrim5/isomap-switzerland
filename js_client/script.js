@@ -21,7 +21,8 @@ var isoLayerGroup = new L.LayerGroup();
 isoLayerGroup.addTo(map);
 
 //declare legend member
-this.legend;
+this.legend = null;
+_this = this;
 
 // Bind searched address to popup
 var searchPoints = L.geoJson(null, {
@@ -79,8 +80,10 @@ $('select').change(function(){
 $('#clearBtn').click(function(){
   console.log("Clearing all Isochrone Layers, markers and legend...");
   isoLayerGroup.clearLayers();
-  map.removeControl(legend);
-  legend = null;
+  if(_this.legend){
+    map.removeControl(_this.legend);
+    _this.legend = null;
+  }
   $("select").val("Flughafen auswählen");
 });
 
@@ -200,9 +203,9 @@ function isochroneError(error) {
 
 // Create a legend for the current intervals on the left bottom
 function addLegend(){
-  if( this.legend )return;
-  this.legend = L.control({position: 'bottomleft'});
-  this.legend.onAdd = function (map) {
+  if( _this.legend )return;
+  _this.legend = L.control({position: 'bottomleft'});
+  _this.legend.onAdd = function (map) {
   var div = L.DomUtil.create('div', 'legend');
   labels = ['<strong>Intervalle</strong>'];
   for (var color in colors) {
@@ -214,5 +217,5 @@ function addLegend(){
     div.innerHTML = labels.join('<br>');
   return div;
   };
-  this.legend.addTo(map);
+  _this.legend.addTo(map);
 }
