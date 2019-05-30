@@ -1,4 +1,14 @@
 var map = new L.Map("map", {
+  scrollWheelZoom: false,
+  zoomControl: false,
+  photonControl: true,
+  photonControlOptions: {
+    onSelected: showSearchPoints,
+    placeholder: "Search...",
+    position: "topleft",
+    url: 'https://photon.komoot.de/api/?',
+    limit: 5
+  },
   center: [47, 8],
   maxBounds: [[45, 4], [48, 11]],
   minZoom: 7,
@@ -6,6 +16,30 @@ var map = new L.Map("map", {
   zoom: 9
 });
 
+// Bind searched address to popup
+var searchPoints = L.geoJson(null, {
+  onEachFeature: function(feature, layer) {
+    layer.bindPopup(feature.properties.name);
+  }
+});
+
+// Zoom to searched points on map
+function showSearchPoints(geojson) {
+  searchPoints.clearLayers();
+  searchPoints.addData(geojson);
+  // Flying zooom
+  map.flyToBounds(searchPoints.getBounds(), {duration: 2.0, maxZoom: 10});
+  // Get coordinates from bounds
+  var point = [];
+  point.push(searchPoints.getBounds().getNorthEast().lat)
+  point.push(searchPoints.getBounds().getNorthEast().lng)
+  //console.log(point);
+  // Get isochrones for searched address
+  getIsochrones(point);
+}
+
+// Add search points to map
+searchPoints.addTo(map);
 
 //create a dropdown for selecting a swiss airport
 var legend = L.control({position: 'topright'});
@@ -24,7 +58,7 @@ legend.onAdd = function (map) {
 legend.addTo(map);
 
 $('select').change(function(){
-  console.log(this.value.split(','));
+  //console.log(this.value.split(','));
   getIsochrones(this.value.split(','));
 });
 
@@ -37,10 +71,14 @@ var osmLayer = L.tileLayer(
   }
 ).addTo(map);
 
+// Add zoom control on map
+var zoomControl = new L.Control.Zoom({ position: "topright" }).addTo(map);
+
 // Which isochrones to calculate? (in seconds)
 var cutoffSec = [1800, 3600];
 // Which from place -> ZRH airport
-var fromPlace = [47.451542, 8.564572];
+var fromPlace = [];
+//console.log(fromPlace);
 
 // Get the isochrone polygons from the OTP server
 // The request URL for 30 and 60 minutes isochrones
@@ -54,7 +92,8 @@ var fromPlace = [47.451542, 8.564572];
 //    maxWalkDistance=1500&
 //    cutoffSec=1800&
 //    cutoffSec=3600
-function getIsochrones(from = fromPlace) {
+function getIsochrones(from) {
+  fromPlace = from;
   // The cutoffSec parameter in the URL is repeated which is a
   // non-standard behaviour. cutoffSec[]=1800&cutoffSec[]=3600
   // does not work. Build this part of the URL manually.
@@ -79,6 +118,7 @@ function getIsochrones(from = fromPlace) {
   });
 }
 
+// Draw isochrones in different colors
 function drawIsochrone(data) {
   if (data.features.length == 0) {
     alert("No isochrone found.");
@@ -90,7 +130,8 @@ function drawIsochrone(data) {
     3600: "#3366ff"
   };
 
-  isochrones = L.geoJSON(data, {
+  // Define isochrones from geoJSON time properties
+  var isochrones = L.geoJSON(null, {
     style: function(feature) {
       return {
         fillColor: colors[feature.properties.time],
@@ -99,7 +140,9 @@ function drawIsochrone(data) {
         fillOpacity: 0.5
       };
     }
-  }).addTo(map);
+  });
+  isochrones.addData(data);
+  isochrones.addTo(map);
 
   // Show travel time in minutes as tool tip
   isochrones
@@ -116,20 +159,19 @@ function drawIsochrone(data) {
     .addTo(map);
 
   // Add the from point location as a marker.
-  var origin = L.circleMarker(from, {
+  var origin = L.circleMarker(fromPlace, {
     color: "#000000",
     fillOpacity: 0.5,
     fillColor: "#ff0000"
-  }).addTo(map);
+  });
+  map.addLayer(origin);
 
   // Zoom to the isochrones extent.
   map.flyToBounds(isochrones.getBounds());
 }
 
+// Error during isochrone calc
 function isochroneError(error) {
   alert("Error during isochrone calculation.");
   console.log("Isochrone error", error);
 }
-
-
-getIsochrones();
