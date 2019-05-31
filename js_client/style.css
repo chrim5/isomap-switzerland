@@ -280,4 +280,5 @@ div.circle {
   -moz-border-radius: 5px;
   border-radius: 5px;
   background: gray;
+  opacity: 0.45;
 }

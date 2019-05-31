@@ -47,7 +47,8 @@ function showSearchPoints(geojson) {
 }
 
 // Add search points to map
-searchPoints.addTo(map);
+isoLayerGroup.addLayer(searchPoints);
+//searchPoints.addTo(map);
 
 //create a dropdown for selecting a swiss airport
 var menuControls = L.control({position: 'topright'});
@@ -69,8 +70,12 @@ menuControls.onAdd = function (map) {
   menuControls.addTo(map);
 
 var colors = {
-  1800: "#756bb1",
-  3600: "#3366ff"
+  900: "#FFFF00",
+  1800: "#40FF00",
+  2700: "#00FFBF", 
+  3600: "#0040FF",
+  4500: "#8000FF",
+  5400: "#FF0040"
 };
 
 $('select').change(function(){
@@ -100,7 +105,7 @@ var osmLayer = L.tileLayer(
 var zoomControl = new L.Control.Zoom({ position: "topright" }).addTo(map);
 
 // Which isochrones to calculate? (in seconds)
-var cutoffSec = [1800, 3600];
+var cutoffSec = [900, 1800, 2700, 3600, 4500, 5400];
 // Which from place -> ZRH airport
 var fromPlace = [];
 //console.log(fromPlace);
@@ -159,7 +164,7 @@ function drawIsochrone(data) {
         fillColor: colors[feature.properties.time],
         color: "#ffffff",
         weight: 0.5,
-        fillOpacity: 0.5
+        fillOpacity: 0.15
       };
     }
   });
@@ -175,7 +180,7 @@ function drawIsochrone(data) {
       },
       {
         sticky: true,
-        opacity: 0.5
+        opacity: 0.9
       }
     )
     .addTo(map);
