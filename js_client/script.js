@@ -55,11 +55,15 @@ var menuControls = L.control({position: 'topright'});
 menuControls.onAdd = function (map) {
   var div = L.DomUtil.create('div', 'menu legend');
   div.innerHTML = `
-  <select class='leaflet-control'>
+  <select id='airport' class='leaflet-control'>
     <option selected>Flughafen auswählen</option>
     <option value='47.451542, 8.564572'>Flughafen Zürich</option>
     <option value='47.5994823, 7.5326228'>Flughafen Basel-Mulhouse</option>
     <option value='46.236389, 6.107222'>Flughafen Genf</option>
+  </select>
+  <select id='mode' class='leaflet-control'>
+    <option selected value='WALK, TRANSIT'>Public Transports</option>
+    <option value='WALK'>Walking</option>
   </select>
   <button ion-button  id='clearBtn' class='leaflet-control button-action'  block>Clear all</button>
   `;
@@ -78,19 +82,20 @@ var colors = {
   5400: "#FF0040"
 };
 
-$('select').change(function(){
+$('#airport').change(function(){
   getIsochrones(this.value.split(','));
 });
 
-$('#clearBtn').click(function(){
-  console.log("Clearing all Isochrone Layers, markers and legend...");
-  isoLayerGroup.clearLayers();
-  if(_this.legend){
-    map.removeControl(_this.legend);
-    _this.legend = null;
-  }
-  $("select").val("Flughafen auswählen");
+$('#mode').change(function(){
+  mode = this.value;
+  clearMap();
 });
+
+$('#clearBtn').click(function(){
+  clearMap();
+});
+
+
 
 // Light OSM layer
 var osmLayer = L.tileLayer(
@@ -109,6 +114,7 @@ var cutoffSec = [900, 1800, 2700, 3600, 4500, 5400];
 // Which from place -> ZRH airport
 var fromPlace = [];
 //console.log(fromPlace);
+var mode = 'WALK, TRANSIT';
 
 // Get the isochrone polygons from the OTP server
 // The request URL for 30 and 60 minutes isochrones
@@ -140,12 +146,22 @@ function getIsochrones(from) {
     dataType: "json",
     data: {
       fromPlace: from.join(","),
-      mode: "TRANSIT,WALK",
+      mode: mode,
       maxWalkDistance: 1500
     },
     success: drawIsochrone,
     error: isochroneError
   });
+}
+
+function clearMap(){
+  console.log("Clearing all Isochrone Layers, markers and legend...");
+  isoLayerGroup.clearLayers();
+  if(_this.legend){
+    map.removeControl(_this.legend);
+    _this.legend = null;
+  }
+  $("#airport").val("Flughafen auswählen");
 }
 
 // Draw isochrones in different colors
@@ -154,8 +170,6 @@ function drawIsochrone(data) {
     alert("No isochrone found.");
     return;
   }
-
-
 
   // Define isochrones from geoJSON time properties
   var isochrones = L.geoJSON(null, {
