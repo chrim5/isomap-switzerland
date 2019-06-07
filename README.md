@@ -17,8 +17,11 @@
   - [Evaluierung](#evaluierung)
     - [Webapplikation](#webapplikation)
   - [Aufbau](#aufbau-1)
-  - [Verwendete Datenquellen](#verwendete-datenquellen-1)
-  - [Ergebnisse](#ergebnisse-1)
+    - [Ergebnisse](#ergebnisse-1)
+  - [Quellen](#quellen)
+    - [Software](#software)
+    - [Daten und Schnittstellen](#daten-und-schnittstellen)
+  - [Mögliche Probleme mit GTFS-Daten und OTP](#m%C3%B6gliche-probleme-mit-gtfs-daten-und-otp)
 - [Getting started](#getting-started)
 
 
@@ -48,29 +51,73 @@ Damit können die Isochronen-Daten direkt von diesem Service bezogen werden.
 
 ### Ergebnisse
 
--> ORS Bild einfügen
+![Screenshot ORS Tools](assets/pictures/ors_tools_qgis_plugin.png)
 
 ## OTP - OpenTripPlanner
-OpenTripPlanner (OTP) ist primär ein Open Source Projekt zur Reiseplanung. Mit Hilfe von GTFS- und OpenStreetMap-Daten können Fahrgastinformationen, Verkehrsnetze, etc. analysiert werden. Dadurch können Routen, die Transit-, Fußgänger-, Fahrrad- und Autosegmente über Netzwerke kombinieren gefunden werden. Alle Anfragen können über eine REST-API gemacht werden. Projektseite: http://opentripplanner.org
-
+OpenTripPlanner (OTP) ist primär ein Open Source Projekt zur Reiseplanung. Mit Hilfe von GTFS- und OpenStreetMap-Daten können Fahrgastinformationen, Verkehrsnetze, etc. analysiert werden. Dadurch können Routen, die Transit-, Fussgänger-, Fahrrad- und Autosegmente über Netzwerke kombinieren und gefunden werden. Die Software läuft auf praktisch jeder Plattform mit einer JVM (Java Virtual Machine). Alle Anfragen werden über eine REST-API behandelt, beispielsweise um die Isochronen für einen bestimmten Punkt (Koordinate) berechnen zu lassen und das Resultat als geoJSON zurückgeben zu können (Beispiel: http://docs.opentripplanner.org/en/latest/Intermediate-Tutorial/).
+Projektseite: http://opentripplanner.org
 
 ## Evaluierung
-
+Da OTP mehr Funktionen und Parameter zur Erstellung von Isochronenkarten bietet, haben wir uns für dieses Tool entschieden um unsere Ziele zu erreichen. Wir verwenden OTP als Backend-Service und visualisieren die Isochronenkarten in einem Web-Frontend mit Hilfe der JavaScript-Bibliothek Leaflet.
 
 ### Webapplikation
-
 ## Aufbau
+![Architektur](assets/pictures/architecture.png)
+Mit Leaflet wird die etwas hellere Basemap von [CartoDB] eingebunden, damit die Isochronen später besser dargestellt werden. Die Requests auf das OTP-Backend werden mit asynchronen Abfragen (jQuery/AJAX) durchgeführt:
+```
+ $.ajax({
+    url:
+      "http://localhost:8080/otp/routers/current/isochrone?" + cutoffSecParam,
+    type: "GET",
+    dataType: "json",
+    data: {
+      fromPlace: from.join(","),
+      mode: mode,
+      maxWalkDistance: 1500
+    },
+    success: drawIsochrone,
+    error: isochroneError
+  });
+}
+```
+Als Adresssuche für OpenStreetMap (OSM) wird die API von Photon angesprochen (http://photon.komoot.de/). Hierzu gibt es auch ein praktisches Plugin für Leaflet, welches die Einbindung in unser Projekt vereinfacht.
+```
+var map = new L.Map("map", {
+  scrollWheelZoom: false,
+  zoomControl: false,
+  photonControl: true,
+  photonControlOptions: {
+    onSelected: showSearchPoints,
+    placeholder: "Search...",
+    position: "topleft",
+    url: 'https://photon.komoot.de/api/?',
+    limit: 5
+  },
+```
 
-## Verwendete Datenquellen
+### Ergebnisse
+![Screenshot Web-Frontend](assets/pictures/webfrontend.png)
 
-## Ergebnisse
+## Quellen
+### Software
+ORS Tools (QGis Plugin): https://openrouteservice.org/
+OpenTripPlanner: http://docs.opentripplanner.org/en/latest/Intermediate-Tutorial/#calculating-travel-time-isochrones
+Leaflet: https://leafletjs.com/
+Leaflet Plugin Photon: https://github.com/komoot/leaflet.photon
+### Daten und Schnittstellen
+General Transit Feed Specification Format (GTFS): https://opentransportdata.swiss/en/dataset/timetable-2019-gtfs
+https://developers.google.com/transit/gtfs/
+Open Street Map
+https://www.openstreetmap.org/#map=8/46.825/8.224 
+Photon-API: http://photon.komoot.de/
 
+## Mögliche Probleme mit GTFS-Daten und OTP
+Um die Scheizer GTFS-Daten mit OTP verwenden zu können, mussten wir eine spezifische Anpassung im Code von OTP selber vornehmen und einen eigenen Build erstellen ([JAR-File](otp-1.4.0-SNAPSHOT-shaded.jar)). Der Grund dafür war, dass bei den GTFS-Daten ein Taxi-Service hinterlegt ist, der OTP nicht interpretieren kann und deshalb beim Erstellen des Graphen abbricht. Es gibt bereits einen Patch, der jedoch noch nicht in die neuste Major-Version von OTP aufgenommen wurde. Der Link für die nötigen Korrekturen: https://github.com/johannilsson/OpenTripPlanner/commit/4f776e79de832b67d1c27d9508588472979bf37c
+
+Zudem kann es vorkommen, dass OTP einige Routen-Typen in den GTFS-Daten nicht richtig interpretieren kann. Für die jeweiligen Typen gibt es Codes, die OTP unter Umständen auch nicht richtig interpretiert und Probleme verursacht. Hier ein Beispiel in der Google-Gruppe von OTP: https://groups.google.com/forum/#!topic/opentripplanner-dev/ZPbmb-a21Qg
 
 # Getting started
-
-
-Wir verwenden als Backendservice zum berechnen der Isochronen einen lokalen [Opentripplanner-Service][opentripplanner]. Dieser verwendet ein Graph-Objekt eines beliebigen Kartenauschnittes um Fahrzeiten zwischen verschiedenen Punkten auf der Karte zu berechnen. Die folgenden Punkte müssen
-
+Wir verwenden als Backendservice zum berechnen der Isochronen einen lokalen [OpenTripPlanner-Service][opentripplanner]. Dieser verwendet ein Graph-Objekt eines beliebigen Kartenauschnittes um Fahrzeiten zwischen verschiedenen Punkten auf der Karte zu berechnen.
 Um den Graphen zu erstellen sind verschiedene Daten erforderlich:
 - Geodaten der Schweiz, hierzu wurde ein etwas über die Landesgrenzen hinausgehender Ausschnitt verwendet, welcher von [hier][switzerland_extended_pbf] heruntergeladen werden kann.
 - Fahrplandaten, die ebenfalls in den Graphen kompiliert werden. Diese liegen als .zip-File vor, welches [hier][switzerland_gtfs] abgeholte werden kann.
@@ -83,10 +130,26 @@ Die erwähnten Daten müssen im 'graphs/current' - Ordner des Projektes abgelegt
 java -Xmx10G -jar otp-1.4.0-SNAPSHOT-shaded.jar --build ./graphs/current
 ```
 
-Webservice mit kompiliertem Graph starten:
+Web-Service mit kompiliertem Graph starten:
 ```
 java -Xmx8G -jar otp-1.4.0-SNAPSHOT-shaded.jar --graphs ./graphs --router current --server
+
+20:56:21.233 INFO (OTPServer.java:39) Wiring up and configuring server.
+20:56:21.237 INFO (GraphScanner.java:64) Attempting to automatically register routerIds [current]
+20:56:21.237 INFO (GraphScanner.java:65) Graph files will be sought in paths relative to .
+20:56:21.238 INFO (GraphService.java:176) Registering new router 'current'
+20:56:21.239 INFO (InputStreamGraphSource.java:181) Loading graph...
+20:56:24.661 INFO (Graph.java:746) Graph version: MavenVersion(1, 4, 0, SNAPSHOT, 35797650dfd0aa43d225b579b7db4ea748de769b)
+20:56:24.662 INFO (Graph.java:747) OTP version:   MavenVersion(1, 4, 0, SNAPSHOT, 35797650dfd0aa43d225b579b7db4ea748de769b)
+20:56:24.662 INFO (Graph.java:764) This graph was built with the currently running version and commit of OTP.
+
+....
+20:58:03.479 INFO (NetworkListener.java:750) Started listener bound to [0.0.0.0:8080]
+20:58:03.481 INFO (NetworkListener.java:750) Started listener bound to [0.0.0.0:8081]
+20:58:03.484 INFO (HttpServer.java:300) [HttpServer] Started.
+20:58:03.484 INFO (GrizzlyServer.java:153) Grizzly server running.
 ```
+Der Web-Server ist dann unter http://localhost:8080/ verfügbar.
 
 [qgis]: https://www.qgis.org/de/site/
 [ors_tools]: https://plugins.qgis.org/plugins/ORStools/
@@ -95,3 +158,4 @@ java -Xmx8G -jar otp-1.4.0-SNAPSHOT-shaded.jar --graphs ./graphs --router curren
 [opentripplanner]:https://www.opentripplanner.org/
 [OpenRouteService]:https://openrouteservice.org/
 [ORS_Tools_Help]:https://github.com/nilsnolde/orstools-qgis-plugin/wiki/ORS-Tools-Help
+[CartoDB]:https://carto.com/location-data-services/basemaps/
