@@ -100,21 +100,21 @@ var map = new L.Map("map", {
 
 ## Quellen
 ### Software
-ORS Tools (QGis Plugin): https://openrouteservice.org/
-OpenTripPlanner: http://docs.opentripplanner.org/en/latest/Intermediate-Tutorial/#calculating-travel-time-isochrones
-Leaflet: https://leafletjs.com/
-Leaflet Plugin Photon: https://github.com/komoot/leaflet.photon
+* ORS Tools (QGis Plugin): https://openrouteservice.org/
+* OpenTripPlanner: http://docs.opentripplanner.org/en/latest/Intermediate-Tutorial/#calculating-travel-time-isochrones
+* Leaflet: https://leafletjs.com/
+* Leaflet Plugin Photon: https://github.com/komoot/leaflet.photon
 ### Daten und Schnittstellen
-General Transit Feed Specification Format (GTFS): https://opentransportdata.swiss/en/dataset/timetable-2019-gtfs
+* General Transit Feed Specification Format (GTFS): https://opentransportdata.swiss/en/dataset/timetable-2019-gtfs
 https://developers.google.com/transit/gtfs/
-Open Street Map
-https://www.openstreetmap.org/#map=8/46.825/8.224 
-Photon-API: http://photon.komoot.de/
+* Open Street Map: https://www.openstreetmap.org/#map=8/46.825/8.224
+* Photon-API: http://photon.komoot.de/
 
 ## Mögliche Probleme mit GTFS-Daten und OTP
 Um die Scheizer GTFS-Daten mit OTP verwenden zu können, mussten wir eine spezifische Anpassung im Code von OTP selber vornehmen und einen eigenen Build erstellen ([JAR-File](otp-1.4.0-SNAPSHOT-shaded.jar)). Der Grund dafür war, dass bei den GTFS-Daten ein Taxi-Service hinterlegt ist, der OTP nicht interpretieren kann und deshalb beim Erstellen des Graphen abbricht. Es gibt bereits einen Patch, der jedoch noch nicht in die neuste Major-Version von OTP aufgenommen wurde. Der Link für die nötigen Korrekturen: https://github.com/johannilsson/OpenTripPlanner/commit/4f776e79de832b67d1c27d9508588472979bf37c
 
 Zudem kann es vorkommen, dass OTP einige Routen-Typen in den GTFS-Daten nicht richtig interpretieren kann. Für die jeweiligen Typen gibt es Codes, die OTP unter Umständen auch nicht richtig interpretiert und Probleme verursacht. Hier ein Beispiel in der Google-Gruppe von OTP: https://groups.google.com/forum/#!topic/opentripplanner-dev/ZPbmb-a21Qg
+Als Umgehungslösung kann in einigen Fällen der Code im routes.txt der GTFS-Daten (normalerweise eine ZIP-Datei) angepasst werden.
 
 # Getting started
 Wir verwenden als Backendservice zum berechnen der Isochronen einen lokalen [OpenTripPlanner-Service][opentripplanner]. Dieser verwendet ein Graph-Objekt eines beliebigen Kartenauschnittes um Fahrzeiten zwischen verschiedenen Punkten auf der Karte zu berechnen.
