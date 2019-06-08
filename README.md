@@ -1,10 +1,10 @@
-# IsoMap - Isochronenkarte der Schweizer Flughäfen
+<h1>IsoMap - Isochronenkarte der Schweizer Flughäfen</h1>
 
-#### Semesterarbeit im Wahlfach Geoinformationssysteme an der BFH
------------------------------------------------------------------
+#### Semesterarbeit im Wahlfach Geoinformationssysteme an der BFH  
+  
+#### Marc Christen, Simon Schmid
 
-
-##### Marc Christen, Simon Schmid
+### Inhalt
 
 - [Ziele](#ziele)
   - [Optionale Ziele](#optionale-ziele)
@@ -56,7 +56,7 @@ Nach hinterlegen des entsprechenden Access-Tokens kann das Plugin die Fahrzeiten
 
 ### Verwendung des Plugins
 
-![Screenshot ORS Tools_UI](assets/pictures/ors_tools_ui.png)
+![Screenshot ORS Tools UI](assets/pictures/ors_tools_ui.PNG)
 
 Nach der Installation kann das Plugin über die Toolbar aufgerufen werden. Danach öffnet sich ein Dialog, der
 diverse Verwendungsmodi des Plugins anbietet. Unter 'Batch Job' -> 'Isochrones' kann ein weiterer Dialog geöffnet werden, 
