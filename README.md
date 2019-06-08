@@ -23,6 +23,8 @@
     - [Daten und Schnittstellen](#daten-und-schnittstellen)
   - [Mögliche Probleme mit GTFS-Daten und OTP](#m%C3%B6gliche-probleme-mit-gtfs-daten-und-otp)
 - [Getting started](#getting-started)
+  - [Backend](#backend)
+  - [Web-Frontend](#web-frontend)
 
 
 # Ziele
@@ -117,6 +119,7 @@ Zudem kann es vorkommen, dass OTP einige Routen-Typen in den GTFS-Daten nicht ri
 Als Umgehungslösung kann in einigen Fällen der Code im routes.txt der GTFS-Daten (normalerweise eine ZIP-Datei) angepasst werden.
 
 # Getting started
+## Backend
 Wir verwenden als Backendservice zum berechnen der Isochronen einen lokalen [OpenTripPlanner-Service][opentripplanner]. Dieser verwendet ein Graph-Objekt eines beliebigen Kartenauschnittes um Fahrzeiten zwischen verschiedenen Punkten auf der Karte zu berechnen.
 Um den Graphen zu erstellen sind verschiedene Daten erforderlich:
 - Geodaten der Schweiz, hierzu wurde ein etwas über die Landesgrenzen hinausgehender Ausschnitt verwendet, welcher von [hier][switzerland_extended_pbf] heruntergeladen werden kann.
@@ -149,7 +152,18 @@ java -Xmx8G -jar otp-1.4.0-SNAPSHOT-shaded.jar --graphs ./graphs --router curren
 20:58:03.484 INFO (HttpServer.java:300) [HttpServer] Started.
 20:58:03.484 INFO (GrizzlyServer.java:153) Grizzly server running.
 ```
-Der Web-Server ist dann unter http://localhost:8080/ verfügbar.
+Der Web-Server kann dann unter http://localhost:8080/, resp. https://localhost:8081 aufgerufen werden.
+
+## Web-Frontend
+Als Einstiegspunkt kann die lokale HTML-Datei [index.html](js_client/index.html) aufgerufen werden.
+In der Datei [script.js](js_client/script.js) können die Parameter für die Isochronenberechnungen angepasst werden:
+```
+// Which isochrones to calculate? (in seconds)
+var cutoffSec = [900, 1800, 2700, 3600, 4500, 5400];
+// Transport mode
+var mode = 'WALK, TRANSIT';
+```
+Eine Übersicht über die möglichen Parameter und Optionen ist in der API-Dokumentation von OTP zu finden: http://dev.opentripplanner.org/apidoc/1.3.0/resource_LIsochrone.html
 
 [qgis]: https://www.qgis.org/de/site/
 [ors_tools]: https://plugins.qgis.org/plugins/ORStools/
