@@ -3,6 +3,7 @@
 #### Semesterarbeit im Wahlfach Geoinformationssysteme an der BFH  
   
 #### Marc Christen, Simon Schmid
+---  
 
 ### Inhalt
 
@@ -188,7 +189,7 @@ Der Web-Server kann dann unter http://localhost:8080/, resp. https://localhost:8
 ## Web-Frontend
 Als Einstiegspunkt kann die lokale HTML-Datei [index.html](js_client/index.html) aufgerufen werden.
 In der Datei [script.js](js_client/script.js) können die Parameter für die Isochronenberechnungen angepasst werden:
-```
+```javascript
 // Which isochrones to calculate? (in seconds)
 var cutoffSec = [900, 1800, 2700, 3600, 4500, 5400];
 // Transport mode
