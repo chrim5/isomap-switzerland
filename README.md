@@ -1,4 +1,4 @@
-### IsoMap - Isochronenkarte der Schweizer Flughäfen
+# IsoMap - Isochronenkarte der Schweizer Flughäfen
 
 #### Semesterarbeit im Wahlfach Geoinformationssysteme an der BFH
 -----------------------------------------------------------------
@@ -12,6 +12,7 @@
   - [QGis - ORS Tools Plugin](#qgis---ors-tools-plugin)
     - [Aufbau](#aufbau)
     - [Verwendete Datenquellen](#verwendete-datenquellen)
+    - [Verwendung des Plugins](#verwendung-des-plugins)
     - [Ergebnisse](#ergebnisse)
   - [OTP - OpenTripPlanner](#otp---opentripplanner)
   - [Evaluierung](#evaluierung)
@@ -25,10 +26,12 @@
 - [Getting started](#getting-started)
   - [Backend](#backend)
   - [Web-Frontend](#web-frontend)
+- [Mögliche zukünftige Erweiterungen](#m%C3%B6gliche-zuk&uuml;nftige-erweiterungen)
+   
 
 
 # Ziele
-- Es sollen mit verschiedenen Instrumenten versucht werden, eine Isochronenenkarte mit den Anfahrtszeiten zu Flughäfen in der Schweiz zu erzeugen. 
+- Es soll mit verschiedenen Instrumenten versucht werden, eine Isochronenenkarte mit den Anfahrtszeiten zu Flughäfen in der Schweiz zu erzeugen. 
 - Dafür soll in einem ersten Schritt versucht werden, mit [QGis][qgis] und allenfalls geeigneten Plugins Isochronenkarten mit fixen Zeitintervallen für alle Flughäfen in der Schweiz zu erzeugen.
 - In einem weiteren Schritt soll eine Webapplikation zur dynamischen Erzeugung von Isochronen unter Verwendung von Webservices erzeugt werden.
 
@@ -49,11 +52,38 @@ Da wir keine Geodaten zu den Standorten der Flughäfen der Schweiz gefunden habe
 
 ### Verwendete Datenquellen
 ORS verwendet die API von [OpenRouteService.org][OpenRouteService], die einen entsprechenden Account auf der Plattform voraussetzt.
-Damit können die Isochronen-Daten direkt von diesem Service bezogen werden.
+Nach hinterlegen des entsprechenden Access-Tokens kann das Plugin die Fahrzeiten zur Berechnung der Isochronen direkt von diesem Service beziehen.
+
+### Verwendung des Plugins
+
+![Screenshot ORS Tools_UI](assets/pictures/ors_tools_ui.png)
+
+Nach der Installation kann das Plugin über die Toolbar aufgerufen werden. Danach öffnet sich ein Dialog, der
+diverse Verwendungsmodi des Plugins anbietet. Unter 'Batch Job' -> 'Isochrones' kann ein weiterer Dialog geöffnet werden, 
+der die Erstellung eines Isochronenlayers aus einem gegebenen Inputlayer oder einem einzelnen Punkt auf der Karte erlaubt:
+
 
 ### Ergebnisse
 
 ![Screenshot ORS Tools](assets/pictures/ors_tools_qgis_plugin.png)
+
+<details><summary>Kompletter Report (Landesflughäfen)</summary>
+<p>
+  
+![Alt text](https://github.com/chrim5/isomap-switzerland/blob/master/qgis_project/reports/Isochrone_Map_Switzerland_International.svg?sanitize=true)
+[PDF-Version][qgis_report_international_pdf]
+</p>
+</details>
+
+<details><summary>Kompletter Report (Regionalflughäfen)</summary>
+<p>
+  
+![Alt text](https://github.com/chrim5/isomap-switzerland/blob/master/qgis_project/reports/Isochrone_Map_Switzerland_Regio.svg?sanitize=true)
+[PDF-Version][qgis_report_regional_pdf]
+</p>
+</details>
+Es ist relativ einfach, mit dem ORS-Plugin in QGis Isochronenkarten zu erzeugen. Allerdings sind die Konfigurationsmöglichkeiten auch stark eingeschränkt, bis auf die Intervalle bis max. 60 Minuten und einige vorggegebenen Fortbewegungsmittel kann man kaum Einfluss auf das Ergebnis nehmen. Wir haben uns erstmal auf Isochronen mit dem Auto als Fortbeweungsmittel sowie unsere beiden verschiedenen Inputlayers der Standorte der Landes- resp. Regionalflughäfen konzentriert.
+Aus diesen Resulaten ist auch leicht zu erkennen, dass die Ergebnisse des Plugins je nach Anwendungszweck nicht perfekt sind. Beispielsweise könnte bei sich überlappenden Bereichen gewünscht sein, dass diese automatisch miteinander zu einem Bereich verrechnet werden. Dazu ist das Plugin leider nicht in der Lage. Aus diesen Gründen haben wir uns entschieden, den QGis-Ansatz nicht mehr weiter zu verfolgen, sondern mit einem webbasierten Ansatz mit Leaflet und OpenTripPlanner weiterzuarbeiten.
 
 ## OTP - OpenTripPlanner
 OpenTripPlanner (OTP) ist primär ein Open Source Projekt zur Reiseplanung. Mit Hilfe von GTFS- und OpenStreetMap-Daten können Fahrgastinformationen, Verkehrsnetze, etc. analysiert werden. Dadurch können Routen, die Transit-, Fussgänger-, Fahrrad- und Autosegmente über Netzwerke kombinieren und gefunden werden. Die Software läuft auf praktisch jeder Plattform mit einer JVM (Java Virtual Machine). Alle Anfragen werden über eine REST-API behandelt, beispielsweise um die Isochronen für einen bestimmten Punkt (Koordinate) berechnen zu lassen und das Resultat als geoJSON zurückgeben zu können (Beispiel: http://docs.opentripplanner.org/en/latest/Intermediate-Tutorial/).
@@ -64,9 +94,9 @@ Da OTP mehr Funktionen und Parameter zur Erstellung von Isochronenkarten bietet,
 
 ### Webapplikation
 ## Aufbau
-![Architektur](assets/pictures/architecture.png)
+![Architektur](assets/pictures/architecture.png)  
 Mit Leaflet wird die etwas hellere Basemap von [CartoDB] eingebunden, damit die Isochronen später besser dargestellt werden. Die Requests auf das OTP-Backend werden mit asynchronen Abfragen (jQuery/AJAX) durchgeführt:
-```
+```javascript
  $.ajax({
     url:
       "http://localhost:8080/otp/routers/current/isochrone?" + cutoffSecParam,
@@ -83,7 +113,7 @@ Mit Leaflet wird die etwas hellere Basemap von [CartoDB] eingebunden, damit die 
 }
 ```
 Als Adresssuche für OpenStreetMap (OSM) wird die API von Photon angesprochen (http://photon.komoot.de/). Hierzu gibt es auch ein praktisches Plugin für Leaflet, welches die Einbindung in unser Projekt vereinfacht.
-```
+```javascript
 var map = new L.Map("map", {
   scrollWheelZoom: false,
   zoomControl: false,
@@ -109,6 +139,7 @@ var map = new L.Map("map", {
 ### Daten und Schnittstellen
 * General Transit Feed Specification Format (GTFS): https://opentransportdata.swiss/en/dataset/timetable-2019-gtfs
 https://developers.google.com/transit/gtfs/
+* Benutzerdefinierte PBF-Kartenausschnitte erzeugen: https://extract.bbbike.org/.
 * Open Street Map: https://www.openstreetmap.org/#map=8/46.825/8.224
 * Photon-API: http://photon.komoot.de/
 
@@ -120,15 +151,15 @@ Als Umgehungslösung kann in einigen Fällen der Code im routes.txt der GTFS-Dat
 
 # Getting started
 ## Backend
-Wir verwenden als Backendservice zum berechnen der Isochronen einen lokalen [OpenTripPlanner-Service][opentripplanner]. Dieser verwendet ein Graph-Objekt eines beliebigen Kartenauschnittes um Fahrzeiten zwischen verschiedenen Punkten auf der Karte zu berechnen.
+Wir verwenden als Backendservice zum Berechnen der Isochronen einen lokalen [OpenTripPlanner-Service][opentripplanner]. Dieser verwendet ein Graph-Objekt eines beliebigen Kartenauschnittes, um Fahrzeiten zwischen verschiedenen Punkten auf der Karte zu berechnen.
 Um den Graphen zu erstellen sind verschiedene Daten erforderlich:
 - Geodaten der Schweiz, hierzu wurde ein etwas über die Landesgrenzen hinausgehender Ausschnitt verwendet, welcher von [hier][switzerland_extended_pbf] heruntergeladen werden kann.
-- Fahrplandaten, die ebenfalls in den Graphen kompiliert werden. Diese liegen als .zip-File vor, welches [hier][switzerland_gtfs] abgeholte werden kann.
+- GTFS-Fahrplandaten, die ebenfalls in den Graphen kompiliert werden. Diese liegen als .zip-File vor, welches [hier][switzerland_gtfs] abgeholte werden kann.
 ```
 mkdir "./graphs/current"
 ```
 
-Die erwähnten Daten müssen im 'graphs/current' - Ordner des Projektes abgelegt werden, damit sie mit folgendem Befehl gefunden und in den Graphen hineinkompiliert werden können. Dieser Schritt ist sehr Zeit- und Speicherintensiv, muss aber nur einmal gemacht werden.
+Die erwähnten Daten müssen im 'graphs/current' - Ordner des Projektes abgelegt werden, damit sie mit folgendem Befehl gefunden und in den Graphen hineinkompiliert werden können. Dieser Schritt ist recht Zeit- und Speicherintensiv, muss aber nur einmal gemacht werden.
 ```
 java -Xmx10G -jar otp-1.4.0-SNAPSHOT-shaded.jar --build ./graphs/current
 ```
@@ -165,7 +196,13 @@ var mode = 'WALK, TRANSIT';
 ```
 Eine Übersicht über die möglichen Parameter und Optionen ist in der API-Dokumentation von OTP zu finden: http://dev.opentripplanner.org/apidoc/1.3.0/resource_LIsochrone.html
 
+# Mögliche zukünftige Erweiterungen
+Der Leaflet Ansatz bietet jede Menge Raum für zukünftige Erweiterungen. Beispielsweise könnten die momentan noch fix vorgegebenen Isochronen-Intervalle und zugehörigen Styles über das GUI verwaltet werden, so dass sich der Benutzer sein Resultatset selber genauer zusammenstellen kann. Weiter könnte die App relativ einfach mit mehr verschiedenen Fortbewegungsarten erweitert werden, momentan werden erst 'öffentlicher Verkehr' oder 'zu Fuss' direkt im GUI unterstützt. Mit dem OTP-Backend wäre es auch denkbar, statt nur Isochronen darzustellen, wahlweise auch Fortbewegungsdistanzen als Isolinien anzeigen zu können.
+
+
 [qgis]: https://www.qgis.org/de/site/
+[qgis_report_international_pdf]: qgis_project/reports/Isochrone_Map_Switzerland_International.pdf
+[qgis_report_regional_pdf]: qgis_project/reports/Isochrone_Map_Switzerland_Regio.pdf
 [ors_tools]: https://plugins.qgis.org/plugins/ORStools/
 [switzerland_extended_pbf]: https://drive.google.com/file/d/11sF108eoYH1Y90dz2mh05JzF1vsw5rkr/view?usp=sharing
 [switzerland_gtfs]:https://drive.google.com/file/d/1FaKUMMOI0vpWk9JVY4480sLfDZQXBHQa/view?usp=sharing
